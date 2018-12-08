@@ -14,29 +14,32 @@ def read_file(file = 'input.txt'):
     return requirements
 
 
-def do_next(requirement_list, processed):
+def get_task(requirement_list):
     columns = zip(*requirement_list)
     possible = []
     before, after = columns
     for point in before:
         if point not in after:
             possible.append(point)
-    to_do = sorted(possible)[0]
-    processed += to_do
+    return sorted(possible)[0]
+
+
+def perform_task(processed, requirement_list, task):
+    processed += task
     for item in sorted(requirement_list):
-        if item[0] == to_do:
+        if item[0] == task:
             if len(requirement_list) == 1:
                 processed += item[1]
             requirement_list.remove(item)
-    print('Doing', to_do, end=': ')
-    return requirement_list, processed
+    return processed, requirement_list
 
 
 def part1(requirements):
     processed = ''
     while len(requirements) > 0:
-        requirements, processed = do_next(requirements, processed)
-        print(processed, requirements)
+        to_do = get_task(requirements)
+        processed, requirements = perform_task(processed, requirements, to_do)
+        print(processed)
 
 
 if __name__ == '__main__':

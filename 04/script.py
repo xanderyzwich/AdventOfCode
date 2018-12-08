@@ -113,12 +113,10 @@ def part2(schedule):
 
     print('Part2 winner is ', winner, ' with ', int(winner) * int(minute))
 
+
 if __name__ == '__main__':
     shift_data = parse_input()
     schedules = guard_summary(shift_data)
     part1(schedules)
     part2(schedules)
-
-
-
 
