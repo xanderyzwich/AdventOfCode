@@ -2,10 +2,14 @@
 Trying to make a faster solution
 Day 11: Chronal Charge
 https://adventofcode.com/2018/day/11
+
+further performance can be gained with this
+https://en.wikipedia.org/wiki/Summed-area_table
 """
 
-import numpy as np
 from datetime import datetime
+
+import numpy as np
 
 grid_size = 300
 square_size = 3
@@ -48,7 +52,7 @@ def dynamic_square_value(x, y, power_grid, size):
     maxx = x + size
     miny = y
     maxy = y + size
-    value = sum(sum(power_grid[minx:maxx, miny:maxy]))
+    value = power_grid[minx:maxx, miny:maxy].sum()
     # print('Grid being checked', minx, maxx, miny, maxy)
     return value
 
