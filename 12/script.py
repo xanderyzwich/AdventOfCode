@@ -71,26 +71,50 @@ def next_gen(offset, data, rules):
             section = data[start:end]
         # print(i, section, next)
         next += rules[section]
-    # print(data)
-    # print(next)
+    offset, next = trim_front(offset, next)
+    next = trim_back(next)
     return offset, next
 
 
-#
+def trim_front(offset, data):
+    if data.startswith('.'):
+        data = data[1:]
+        offset -= 1
+        # print('start')
+    else:
+        return offset, data
+    return trim_front(offset, data)
+
+
+def trim_back(data):
+    if data.endswith('.'):
+        # print('ends')
+        data = data[:len(data) - 1]
+    else:
+        return data
+    return trim_back(data)
+
+
 if __name__ == '__main__':
     # data, rules = read_data('demo.txt')
     data, rules = read_data('input.txt')
     offset = 0
     rules = rules_check(rules)
     # offset, data = -2, 'mn0123456789'
-    print('0', data)
+    # print('0', data)
     for i in range(1, 21):
         offset, data = next_gen(offset, data, rules)
         # print(i, data, 'offset =', offset)
     print('After 20 generations:', total(offset, data))
     for i in range(21, 50000000000 + 1):
+        last_data, last_offset = data, offset
         offset, data = next_gen(offset, data, rules)
         # print(i, data, 'offset =', offset)
-        if i % 1000 == 0:
-            print(i % 1000, end='-')
+        if last_data == data:
+            delta = offset - last_offset
+            future = offset + ((50000000000 - i) * delta)
+            offset = future
+            break
+        # if i % 1000 == 0:
+        #     print(i % 1000, end='-')
     print('After 50000000000 generations:', total(offset, data))
