@@ -11,7 +11,8 @@ def read_data(file_name):
         for line in input_file:
             line = line.replace('\n', '')
             if 'initial state' in line:
-                initial_string = line
+                initial_string = line.split(' ')[2]
+                # print(initial_string)
             elif line == '':
                 pass
             else:
@@ -30,18 +31,66 @@ def rules_check(rules):
     return rules
 
 
-def total(state):
-    offset, data = state
+def total(offset, data):
     sum = 0
-    for i in range(len(state)):
+    for i in range(len(data)):
         if data[i] == '#':
             sum += i - offset
     return sum
 
 
+def next_gen(offset, data, rules):
+    section, next = '', ''
+    if data.startswith('#'):
+        data = '..' + data
+        offset += 2
+    elif data.startswith('.#'):
+        data = '.' + data
+        offset += 1
+    if data.endswith('#'):
+        data = data + '..'
+    elif data.endswith('#.'):
+        data = data + '.'
+    for i in range(0, len(data)):
+        start, end = i - 2, i + 3
+        if i == 0:
+            section = '..'
+            section += data[0:end]
+            # offset += 2
+        elif i == 1:
+            section = '.'
+            section += data[0:end]
+            # offset += 1
+        elif i == len(data) - 1:
+            section = data[start:len(data)]
+            section += '..'
+        elif i == len(data) - 2:
+            section = data[start:len(data)]
+            section += '.'
+        else:
+            section = data[start:end]
+        # print(i, section, next)
+        next += rules[section]
+    # print(data)
+    # print(next)
+    return offset, next
+
+
+#
 if __name__ == '__main__':
-    # state = read_data('demo.txt')
+    # data, rules = read_data('demo.txt')
     data, rules = read_data('input.txt')
+    offset = 0
     rules = rules_check(rules)
-    data = 'mn0123456789'
-    print(data)
+    # offset, data = -2, 'mn0123456789'
+    print('0', data)
+    for i in range(1, 21):
+        offset, data = next_gen(offset, data, rules)
+        # print(i, data, 'offset =', offset)
+    print('After 20 generations:', total(offset, data))
+    for i in range(21, 50000000000 + 1):
+        offset, data = next_gen(offset, data, rules)
+        # print(i, data, 'offset =', offset)
+        if i % 1000 == 0:
+            print(i % 1000, end='-')
+    print('After 50000000000 generations:', total(offset, data))
