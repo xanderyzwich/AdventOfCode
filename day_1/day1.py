@@ -9,10 +9,10 @@ def expense_report(input_arr, add_to=2020):
     Find the two numbers that sum to 2020 and return their product
     """
     i, j = 0, len(input_arr) - 1
+    print(add_to, input_arr)
     while i <= j:
         left, right = input_arr[i], input_arr[j]
         total = left + right
-        # print(f'{i}:{left} + {j}:{right} = {total}')
         if total == add_to:
             print("exiting expense_report from :", left, right, left * right)
             return left * right
@@ -23,7 +23,7 @@ def expense_report(input_arr, add_to=2020):
 
 
 def convert(input_file):
-    return [int(x) for x in sorted(list(input_file))]
+    return sorted([int(x) for x in list(input_file)])
 
 
 def three_fer(input_arr):
@@ -32,18 +32,22 @@ def three_fer(input_arr):
     """
     for i, x in enumerate(input_arr):
         temp_result = expense_report(input_arr[i+1:], add_to=2020-x)
-        print(i, x, temp_result)
-        if temp_result is not None:
-            print('exiting three_fer', i, x, temp_result, temp_result*x)
+        if temp_result:
             return temp_result * x
 
 
 def brute_force(input_arr):
+    """
+    3 numbers
+    :param input_arr:
+    :return:
+    """
     for i in range(len(input_arr)-2):
         for j in range(i+1, len(input_arr)-1):
             for k in range(j+1, len(input_arr)):
                 a, b, c = input_arr[i], input_arr[j], input_arr[k]
                 if sum([a, b, c]) == 2020:
+                    print(a, b, c, a+b+c, a*b*c)
                     return a * b * c
 
 
@@ -55,7 +59,18 @@ class TestExpenseReport(TestCase):
 
     def test_one(self):
         with open("day1.part1.txt", 'r') as in_file:
-            print(expense_report(convert(in_file)))  # 913824
+            assert expense_report(convert(in_file)) == 913824
+            # print("Part 1 with data:", expense_report(convert(in_file)))  # 913824
+
+    def test_three_fer_example(self):
+        assert three_fer(self.example) == 241861950
+
+    def test_three_fer_two(self):
+        with open("day1.part1.txt", 'r') as in_file:
+            result = three_fer(convert(in_file))
+            # print("Three_fer with data:", result)  # 240889536
+            assert result == 240889536
+
 
     def test_two_example(self):
         assert 979 * 366 * 675 == 241861950
@@ -64,4 +79,5 @@ class TestExpenseReport(TestCase):
 
     def test_two(self):
         with open("day1.part1.txt", 'r') as in_file:
-            print(brute_force(convert(in_file)))  #
+            assert brute_force(convert(in_file)) == 240889536
+            # print("Part 2 with Data:", brute_force(convert(in_file)))  # 240889536
