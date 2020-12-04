@@ -8,7 +8,7 @@ required_fields = {
     'byr': (lambda v: 4 == len(str(v)) and (1920 <= int(v) <= 2002)),  # birth year
     'iyr': (lambda v: 4 == len(str(v)) and (2010 <= int(v) <= 2020)),  # 'issue year',
     'eyr': (lambda v: 4 == len(str(v)) and (2020 <= int(v) <= 2030)),  # 'expiration year',
-    'hgt': (lambda v: (150 <= int(v[:-2]) <= 193) if 'cm' == v[-2:] else (59 <= int(v[:-2]) <= 76) if 'in' == v[-2:] else False),  # 'height',
+    'hgt': (lambda v: ((150 <= int(v[:-2]) <= 193) and 'cm' == v[-2:]) or ((59 <= int(v[:-2]) <= 76) and 'in' == v[-2:])),  # 'height',
     'hcl': (lambda v: v[0] == '#' and re.match(r'#[A-Fa-f0-9]{6}', v)),  # 'hair color',
     'ecl': (lambda v: v in ['amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth']),  # 'eye color',
     # 'cid': (lambda v: True),  # 'country id',
