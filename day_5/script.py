@@ -3,11 +3,16 @@ Day 5: Binary Boarding
 """
 from unittest import TestCase
 
+coding = {
+    'F': '0',
+    'B': '1',
+    'L': '0',
+    'R': '1'
+}
+
 
 def decode_placement(input_str):
-    row = int(input_str[:7].replace('F', '0').replace('B', '1'), 2)
-    col = int(input_str[7:].replace('L', '0').replace('R', '1'), 2)
-    return row * 8 + col
+    return int(''.join([coding[c] for c in input_str.rstrip('\n')]), 2)
 
 
 def max_id(file_name):
@@ -16,16 +21,13 @@ def max_id(file_name):
 
 
 def find_missing(file_name):
-    maximum_id = 127 * 8 + 7
-    empty_seats = list(range(maximum_id))
+    filled_seats = []
     with open(file_name, 'r') as input_file:
-        [empty_seats.remove(decode_placement(line)) for line in input_file]
-    left, right = 1, len(empty_seats)-2
-    while empty_seats[left+1] - empty_seats[left] == 1:
-        left += 1
-    while empty_seats[right] - empty_seats[right-1] == 1:
-        right -= 1
-    return empty_seats[left+1]
+        [filled_seats.append(decode_placement(line)) for line in input_file]
+    filled_seats.sort()
+    for seat in filled_seats:
+        if seat+1 not in filled_seats:
+            return seat+1
 
 class TestThing(TestCase):
 
