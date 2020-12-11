@@ -2,3 +2,5 @@
 .idea/
 
 venv/
+
+day_10/__pycache__/
