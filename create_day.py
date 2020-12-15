@@ -32,7 +32,7 @@ if __name__ == '__main__':
         file_name, file_extension = os.path.splitext(name)
         if 'format' == file_name:
             destination_file_name = f'script{file_extension}'
-            print(file_extension)
+            # print(file_extension)
             if destination_file_name not in destination_contents:
                 shutil.copy(name, f'{dir_name}/{destination_file_name}')
 
