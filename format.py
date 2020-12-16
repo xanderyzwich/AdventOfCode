@@ -10,6 +10,9 @@ def thing(stuff):
 
 class TestThing(TestCase):
 
+    def setUp(self) -> None:
+        print(f'\n--- Running test: {self._testMethodName} ---')
+
     def test_one_example(self):
         assert True
 
