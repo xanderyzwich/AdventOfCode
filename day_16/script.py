@@ -158,10 +158,19 @@ def translate_ticket(field_names, my_ticket):
     :param my_ticket: values for each field
     :return: dict of [field name]: [value]
     """
+    from rich.console import Console
+    from rich.table import Table
+    console = Console()
+    table = Table(show_header=True, header_style="green")
+    table.add_column("field")
+    table.add_column("value")
+
     my_clean_ticket = {}
     for x, y in zip(field_names, my_ticket):
-        print(f'{x}: {y}')
+        table.add_row(x, str(y))
+        # print(f'{x}: {y}')
         my_clean_ticket[x] = y
+    console.print(table)
     return my_clean_ticket
 
 
