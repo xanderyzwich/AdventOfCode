@@ -14,15 +14,13 @@ def parse_input(file_name):
     """
     datum = []
     with open(file_name, 'r') as input_file:
-        for l in input_file:
-            line = l.rstrip().replace(r'(', '').replace(')', '')
-            pieces = [x.replace(',', '') for x in line.split()]
+        for line in input_file:
+            pieces = line.rstrip().replace(r'(', '').replace(')', '').replace(',', '').split()
             divider = pieces.index('contains')
-            piece = {
+            datum.append({
                 'ingredients': pieces[:divider],
                 'allergens': pieces[divider + 1:]
-            }
-            datum.append(piece)
+            })
     return datum
 
 
@@ -61,6 +59,11 @@ def get_ingredient_counts(data):
 
 
 def get_probables(allergy_info):
+    """
+    Find the ingredients that are most likely to be each allergen
+    :param allergy_info:
+    :return:
+    """
     probable, probably_something = {}, []
     for a in allergy_info:
         possibles = {}
@@ -85,7 +88,27 @@ def get_probables(allergy_info):
     return probable, probably_something
 
 
+def part1(file_name):
+    data = parse_input(file_name)
+    allergy_info = ingredient_lists_by_allergen(data)
+    probable, probably_something = get_probables(allergy_info)
+
+    counter = get_ingredient_counts(data)
+    # print('counted spam', counter)
+    safe = [x for x in counter.keys() if x not in probably_something]
+    # print('likely nothing:', safe)
+
+    result = sum([y for x, y in counter.items() if x in safe])
+    print('part1 solution:', result)
+    return result
+
+
 def cleanup_probables(probable):
+    """
+    Deduplicate the probables list
+    :param probable:
+    :return:
+    """
     final_decision, prob_len = {}, len(probable)
     while len(final_decision) != prob_len:
         delete_list = []
@@ -101,6 +124,11 @@ def cleanup_probables(probable):
 
 
 def compile_canonical_dangerous_ingredient_list(final_decision):
+    """
+    Create a list of the dangerous ingredients ordered by their English name
+    :param final_decision:
+    :return:
+    """
     canonical_dangerous_ingredient_list = ''
     for f in sorted(final_decision):
         canonical_dangerous_ingredient_list += final_decision[f] + ','
@@ -108,19 +136,10 @@ def compile_canonical_dangerous_ingredient_list(final_decision):
     return result
 
 
-def deduce(data, part=1):
+def part2(file_name):
+    data = parse_input(file_name)
     allergy_info = ingredient_lists_by_allergen(data)
     probable, probably_something = get_probables(allergy_info)
-
-    counter = get_ingredient_counts(data)
-    # print('counted spam', counter)
-    safe = [x for x in counter.keys() if x not in probably_something]
-    # print('likely nothing:', safe)
-
-    if part == 1:
-        result = sum([y for x, y in counter.items() if x in safe])
-        print('part1 solution:', result)
-        return result
 
     final_decision = cleanup_probables(probable)
     # print(json.dumps(final_decision, sort_keys=True, indent=4))
@@ -135,20 +154,14 @@ class TestThing(TestCase):
     def setUp(self) -> None:
         print(f'\n--- Running test: {self._testMethodName} ---')
 
-    def test_one_dev(self):
-        data = parse_input('example.txt')
-        print('file data', data)
-        rendered_data = deduce(data)
-        print('rendered data:', rendered_data)
-
     def test_one_example(self):
-        assert deduce(parse_input('example.txt')) == 5
+        assert part1('example.txt') == 5
 
     def test_one_data(self):
-        assert deduce(parse_input('data.txt')) == 2485
+        assert part1('data.txt') == 2485
 
     def test_two_example(self):
-        assert deduce(parse_input('example.txt'), part=2) == 'mxmxvkd,sqjhc,fvjkl'
+        assert part2('example.txt') == 'mxmxvkd,sqjhc,fvjkl'
 
     def test_two_data(self):
-        assert deduce(parse_input('data.txt'), part=2) == 'bqkndvb,zmb,bmrmhm,snhrpv,vflms,bqtvr,qzkjrtl,rkkrx'
+        assert part2('data.txt') == 'bqkndvb,zmb,bmrmhm,snhrpv,vflms,bqtvr,qzkjrtl,rkkrx'
