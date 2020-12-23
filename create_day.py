@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Setup the new day's directory and base files
 """
