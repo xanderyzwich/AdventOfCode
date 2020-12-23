@@ -38,12 +38,10 @@ def overlap(list1, list2):
     return result
 
 
-def deduce(data, part=1):
+def ingredient_lists_by_allergen(data):
     allergy_info = {}
-    ingredient_spam = []  # used for counting times an ingredient was found
     for entry in data:
         ingredients = entry['ingredients']
-        ingredient_spam.extend(ingredients)
         allergens = entry['allergens']  # food may contain other allergens as well
         for a in allergens:
             if a in allergy_info:
@@ -51,9 +49,18 @@ def deduce(data, part=1):
             else:
                 allergy_info[a] = [ingredients]
     # print('deduce allergy info', allergy_info)
+    return allergy_info
+
+
+def get_ingredient_counts(data):
+    ingredient_spam = []  # used for counting times an ingredient was found
+    for entry in data:
+        ingredient_spam.extend(entry['ingredients'])
     # print('ingredient spam', ingredient_spam)
-    counter = collections.Counter(ingredient_spam)
-    # print('counted spam', counter)
+    return collections.Counter(ingredient_spam)
+
+
+def get_probables(allergy_info):
     probable, probably_something = {}, []
     for a in allergy_info:
         possibles = {}
@@ -75,14 +82,10 @@ def deduce(data, part=1):
         probable[a] = guesses
     # print('probably', probable, 'something:', probably_something)
     # print(json.dumps(probable, sort_keys=True, indent=4))
-    safe = [x for x in set(ingredient_spam) if x not in probably_something]
-    # print('likely nothing:', safe)
-    result = sum([y for x, y in counter.items() if x in safe])
+    return probable, probably_something
 
-    if part == 1:
-        print('part1 solution:', result)
-        return result
 
+def cleanup_probables(probable):
     final_decision, prob_len = {}, len(probable)
     while len(final_decision) != prob_len:
         delete_list = []
@@ -94,13 +97,38 @@ def deduce(data, part=1):
                     probable[p].remove(final_decision[a])
         for d in delete_list:
             del probable[d]
-    # print(json.dumps(final_decision, sort_keys=True, indent=4))
+    return final_decision
+
+
+def compile_canonical_dangerous_ingredient_list(final_decision):
     canonical_dangerous_ingredient_list = ''
     for f in sorted(final_decision):
         canonical_dangerous_ingredient_list += final_decision[f] + ','
     result = canonical_dangerous_ingredient_list.rstrip(',')
+    return result
+
+
+def deduce(data, part=1):
+    allergy_info = ingredient_lists_by_allergen(data)
+    probable, probably_something = get_probables(allergy_info)
+
+    counter = get_ingredient_counts(data)
+    # print('counted spam', counter)
+    safe = [x for x in counter.keys() if x not in probably_something]
+    # print('likely nothing:', safe)
+
+    if part == 1:
+        result = sum([y for x, y in counter.items() if x in safe])
+        print('part1 solution:', result)
+        return result
+
+    final_decision = cleanup_probables(probable)
+    # print(json.dumps(final_decision, sort_keys=True, indent=4))
+
+    result = compile_canonical_dangerous_ingredient_list(final_decision)
     print('part2 solution:', result)
     return result
+
 
 class TestThing(TestCase):
 
