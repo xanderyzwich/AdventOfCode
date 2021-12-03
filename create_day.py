@@ -8,12 +8,19 @@ import shutil
 import sys
 from getopt import getopt, GetoptError
 
+language_extensions = {
+    'python': '.py',
+}
+
 if __name__ == '__main__':
     help_str = f'{__file__} -d <day_num>'
     help_str += f'\n{__file__} -y 2021 -d 2'
+
     argv = sys.argv[1:]
+    # Default values
     date = datetime.datetime.now().date()
     year, day = str(date.year), date.day
+    lang = 'python'
 
     try:
         opts, args = getopt(argv, "h:y:d:l:", ["help =", "year =", "day =", "lang ="])
@@ -21,8 +28,6 @@ if __name__ == '__main__':
         print(help_str)
         sys.exit(2)
 
-    print(f'OPTS= {opts}')
-    print(f'ARGS= {args}')
     for opt, arg in opts:
         if opt in ['-h', '--help']:
             print(help_str)
@@ -41,16 +46,14 @@ if __name__ == '__main__':
 
     day_name = f'day_{day}'
     dir_name = os.path.join(CURR_DIR, str(year), day_name)
-    print(dir_name)
     contents = os.listdir(year)
     if day_name not in contents:
         os.mkdir(dir_name)
 
     destination_contents = os.listdir(dir_name)
-    print(destination_contents)
     for name in current_contents:
         file_name, file_extension = os.path.splitext(name)
-        if 'format' == file_name:
+        if 'format' == file_name and language_extensions[lang] == file_extension:
             destination_file_name = f'script{file_extension}'
             # print(file_extension)
             if destination_file_name not in destination_contents:
@@ -67,3 +70,7 @@ if __name__ == '__main__':
     print(f'Good luck with day # {day}!')
     if day < 25:
         print(f'Only {25-day} days left!')
+    elif 25 == day:
+        print('LAST DAY! Merry Christmas!')
+    else:
+        print('Isn\'t Advent Over?')
