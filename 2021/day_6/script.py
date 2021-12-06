@@ -4,38 +4,11 @@ Day 6: Lanternfish
 from unittest import TestCase
 
 
-def another_day(fish_list):
-    new_fish = []
-    for i in range(len(fish_list)):
-        if 0 == fish_list[i]:
-            fish_list[i] = 6
-            new_fish.append(8)
-        else:
-            fish_list[i] = fish_list[i]-1
-    fish_list.extend(new_fish)
-
-
-def population_after_days(fish_school, num):
-    for _ in range(num):
-        another_day(fish_school)
-    return len(fish_school)
-
-
 def population_by_group(fish_school, days):
     counts = {i: fish_school.count(i) for i in range(9)}
     for _ in range(days):
-        counts = {
-            0: counts[1],
-            1: counts[2],
-            2: counts[3],
-            3: counts[4],
-            4: counts[5],
-            5: counts[6],
-            6: counts[0]+counts[7],
-            7: counts[8],
-            8: counts[0],
-        }
-    print(counts)
+        counts = {i: counts[(i+1) % 9] for i in counts}
+        counts[6] += counts[8]
     return sum(counts.values())
 
 
@@ -70,26 +43,19 @@ class TestThing(TestCase):
         print('\t\t' + test_result)
 
     def test_one_example(self):
-        fishes = self.example_data
-        self.assertion(26 == population_after_days(fishes, 18))
-        self.assertion(5934 == population_after_days(fishes, 62))
+        self.assertion(26 == population_by_group(self.example_data, 18))
+        self.assertion(5934 == population_by_group(self.example_data, 80))
 
     def test_one_data(self):
-        count = population_after_days(self.input_data, 80)
-        self.assertion(353079 == count)
+        self.assertion(353079 == population_by_group(self.input_data, 80))
 
     def test_two_example(self):
-        count = population_after_days(self.example_data, 256)
-        self.assertion(26984457539 == count)
+        self.assertion(26984457539 == population_by_group(self.example_data, 256))
 
     def test_two_counts_example(self):
-        fishes = self.example_data
-        self.assertion(26 == population_by_group(fishes, 18))
-        self.assertion(5934 == population_by_group(fishes, 80))
-        self.assertion(26984457539 == population_by_group(fishes, 256))
+        self.assertion(26 == population_by_group(self.example_data, 18))
+        self.assertion(5934 == population_by_group(self.example_data, 80))
+        self.assertion(26984457539 == population_by_group(self.example_data, 256))
 
     def test_two_data(self):
-        fishes = self.input_data
-        count = population_by_group(fishes, 256)
-        print(count)
-        self.assertion(count)
+        self.assertion(1605400130036 == population_by_group(self.input_data, 256))
