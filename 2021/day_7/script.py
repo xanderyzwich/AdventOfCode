@@ -5,13 +5,9 @@ import sys
 from unittest import TestCase
 
 
-def horizontal_of_least_fuel(horizontals_list, linear=True):
-    if linear:
-        middle = int(len(horizontals_list)/2)
-        return horizontals_list[middle]  # median
-    else:
-        average = round(sum(horizontals_list)/len(horizontals_list))  # average
-        return average
+def horizontal_of_least_fuel(horizontals_list):
+    middle = int(len(horizontals_list)/2)
+    return horizontals_list[middle]  # median
 
 
 def fuel_to_horizontal(given_horizontal, horizontals_list):
@@ -22,25 +18,18 @@ def non_linear_fuel_cost(given_horizontal, horizontals_list):
     fuel_cost = 0
     for h in horizontals_list:
         n = abs(given_horizontal-h)
-        fuel_cost += (n**2+n)/2
+        fuel_cost += (n**2+n)/2  # triangular distribution
     return fuel_cost
 
 
 def non_linear_guess_horizontal(horizontals_list):
     min_fuel = sys.maxsize  # big number
-    min_at = -1
     for i in range(max(horizontals_list)):
         check_guess = non_linear_fuel_cost(i, horizontals_list)
         if check_guess < min_fuel:
             min_fuel = check_guess
-            min_at = i
         else:
-            average = horizontal_of_least_fuel(horizontals_list, linear=False)
-            print(f'Ideal Horizontal: {min_at}, and average was {average}')
             return min_fuel
-
-
-
 
 
 def parse_file(file_name):
@@ -85,15 +74,9 @@ class TestThing(TestCase):
         self.assertion(352331 == fuel_cost)
 
     def test_two_example(self):
-        # horizontal = horizontal_of_least_fuel(self.example_data, linear=False)
-        # self.assertion(5 == horizontal)
         fuel_cost = non_linear_guess_horizontal(self.example_data)
         self.assertion(168 == fuel_cost)
 
     def test_two_data(self):
-        # horizontal = horizontal_of_least_fuel(self.input_data, linear=False)
         fuel_cost = non_linear_guess_horizontal(self.input_data)
-        print(fuel_cost)
-
-        # 99266343
-        self.assertion(fuel_cost)
+        self.assertion(99266250 == fuel_cost)
