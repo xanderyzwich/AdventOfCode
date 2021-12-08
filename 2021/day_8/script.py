@@ -4,6 +4,7 @@ Day 8: Seven Segment Search
 from unittest import TestCase
 
 
+# broken out of parse_data in order to test the short example
 def parse_line(input_line):
     signal_pattern_part, four_digit_part = input_line.strip().split(' | ')
     signals = signal_pattern_part.split()
@@ -19,61 +20,31 @@ def parse_data(file_name):
     return data
 
 
+# part 1
 def count_unique_segment_sizes(data):
     count = 0
     for entry in data:
         for d in entry['digits']:
             count += 1 if len(d) in [2, 3, 4, 7] else 0
-    # print(count)
     return count
 
 
+# used to order the segments in a given signal
+# this prevents issues if segments are disordered between digits and base signals
 def sort_string(jumble):
     char_list = list(jumble)
     char_list.sort()
     return ''.join(char_list)
 
 
-segment_sums = {  # summing the number of times each segment appears in proper digits
-    'a': 8,
-    'b': 6,
-    'c': 8,
-    'd': 7,
-    'e': 4,
-    'f': 9,
-    'g': 7,
-}
-segment_names = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
-segments_per_number = {
-    0: 6,
-    1: 2,
-    2: 5,
-    3: 5,
-    4: 4,
-    5: 5,
-    6: 6,
-    7: 3,
-    8: 7,
-    0: 6
-}
-proper_segment_cipher = {
-    'abcefg': 0,
-    'cf': 1,
-    'acdeg': 2,
-    'acdfg': 3,
-    'bcdf': 4,
-    'abdfg': 5,
-    'abdefg': 6,
-    'acf': 7,
-    'abcdefg': 8,
-    'abcdfg': 9,
-}
-
 def deduce_cipher(entry_signals):
-    cipher = {}
-    segment_counts = {alpha: 0 for alpha in segment_names}  # based on signal not proper
-    segment_mapping = {}  # from signal name to proper name
+    segment_counts, unique_cipher = get_counts_and_unique(entry_signals)
+    segment_mapping = map_segments(segment_counts, unique_cipher)
+    return translate_signals(entry_signals, segment_mapping)
 
+
+def get_counts_and_unique(entry_signals):
+    segment_counts = {alpha: 0 for alpha in ['a', 'b', 'c', 'd', 'e', 'f', 'g']}  # based on signal not proper
     unique_cipher = {}
     for signal in entry_signals:
         length = len(signal)
@@ -91,44 +62,59 @@ def deduce_cipher(entry_signals):
         # add to the counts for each segment name
         for c in list(signal):
             segment_counts[c] += 1
+    return segment_counts, unique_cipher
 
-    for k, v in segment_counts.items():
-        if 4 == v:
-            segment_mapping[k] = 'e'
-        elif 6 == v:
-            segment_mapping[k] = 'b'
-        elif 9 == v:
-            segment_mapping[k] = 'f'
-        elif 8 == v:
-            segment_mapping[k] = 'c' if k in unique_cipher[1] else 'a'
-        elif 7 == v:
-            segment_mapping[k] = 'd' if k in unique_cipher[4] else 'g'
-        else:
-            print('Count Error', k, v)
 
+def translate_signals(entry_signals, segment_mapping):
+    cipher = {}
+    proper_segment_cipher = {
+        'abcefg': 0,
+        'cf': 1,
+        'acdeg': 2,
+        'acdfg': 3,
+        'bcdf': 4,
+        'abdfg': 5,
+        'abdefg': 6,
+        'acf': 7,
+        'abcdefg': 8,
+        'abcdfg': 9,
+    }
+
+    # map signals to numbers
     for signal in entry_signals:
         plaintext_signal = [segment_mapping[k] for k in list(signal)]
         clean_signal = sort_string(plaintext_signal)
         cipher[sort_string(signal)] = proper_segment_cipher[clean_signal]
-    # print(cipher)
     return cipher
 
 
-def decode(digit_list, cipher):
+# build segment translation mapping from signal to proper
+def map_segments(segment_counts, unique_cipher):
+    segment_mapping = {}
+    get_proper_segment_name = {
+        4: lambda segment_name, unique: 'e',
+        6: lambda segment_name, unique: 'b',
+        9: lambda segment_name, unique: 'f',
+        8: lambda segment_name, unique: 'c' if segment_name in unique[1] else 'a',
+        7: lambda segment_name, unique: 'd' if segment_name in unique[4] else 'g',
+    }
+    for segment, count in segment_counts.items():
+        segment_mapping[segment] = get_proper_segment_name[count](segment, unique_cipher)
+    return segment_mapping
+
+
+def decode_digits(digit_list, cipher):
     result = ''.join([str(cipher[sort_string(digit)]) for digit in digit_list])
     return int(result)
 
 
 def decode_entry(data_entry):
     cipher = deduce_cipher(data_entry['signals'])
-    return decode(data_entry['digits'], cipher)
+    return decode_digits(data_entry['digits'], cipher)
 
 
 def sum_entries(entry_list):
-    total = 0
-    for entry in entry_list:
-        total += decode_entry(entry)
-    return total
+    return sum([decode_entry(entry) for entry in entry_list])
 
 
 class TestThing(TestCase):
