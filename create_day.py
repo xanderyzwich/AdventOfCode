@@ -61,7 +61,7 @@ if __name__ == '__main__':
 
     os.chdir(dir_name)
     contents = os.listdir()
-    data_files = ['example.txt', 'data.txt']
+    data_files = ['example.txt', 'input.txt']
     for file in data_files:
         if file not in contents:
             with open(file, 'a') as thing:

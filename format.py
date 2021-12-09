@@ -8,7 +8,18 @@ def thing(stuff):
     pass
 
 
+def parse_file(file_name):
+    data = []
+    with open(file_name, 'r') as input_file:
+        for line in input_file:
+            clean = line.strip()
+            data.append(clean)
+    return data
+
+
 class TestThing(TestCase):
+    example_data = parse_file('example.txt')
+    input_data = parse_file('input.txt')
 
     @classmethod
     def setUpClass(cls) -> None:
