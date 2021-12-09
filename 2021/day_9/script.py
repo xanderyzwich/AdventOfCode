@@ -1,6 +1,8 @@
 """
 Day 9: Smoke Basin
 """
+from functools import reduce
+from operator import mul
 from unittest import TestCase
 
 
@@ -47,25 +49,18 @@ def size_of_basin(low_row, low_col, data_2d_list):
     basin_points = [(low_row, low_col)]
     found_new_point = True
     while found_new_point:
-        # print(f' Current basin size: {len(basin_points)}')
-        new_points = []
-        found_new_point = False
+        new_points, found_new_point = [], False
         for point in basin_points:
             adjacents = get_adjacent_values(*point, data_2d_list, with_indexes=True)
-            # print(f'Point: {point} has adjacents: {[(p, v) for p,v in adjacents]}')
             for adj_point, adj_val in adjacents:
-                in_basin, in_new = adj_point in basin_points, adj_point in new_points
-                is_peak = 9 == adj_val
-                if any([in_basin, in_new, is_peak]):
-                    continue
-                new_points.append(adj_point)
-                found_new_point = True
-        if 1 < len(new_points):
-            # print('Found multiple new points', new_points)
-            basin_points.extend(new_points)
-        elif 1 == len(new_points):
-            # print('Found ONE new point')
-            basin_points.append(new_points[0])
+                if not any([
+                    adj_point in basin_points,
+                    adj_point in new_points,
+                    9 == adj_val
+                ]):
+                    new_points.append(adj_point)
+                    found_new_point = True
+        basin_points.extend(new_points)
     return len(basin_points)
 
 
@@ -76,20 +71,17 @@ def find_basin_sizes(data_2d_list):
 
 def product_of_biggest_basins(data_2d_list, count=3):
     basin_sizes = find_basin_sizes(data_2d_list)
-    print(basin_sizes)
     basin_sizes.sort(reverse=True)
-    product = 1
-    for size in basin_sizes[:count]:
-        product *= size
-    return product
+    return reduce(mul, basin_sizes[:count])
 
 
-def parse_file(file_name):
+def parse_file(file_name, type_cast=int, line_handler=lambda x: list(x.strip())):
     data = []
     with open(file_name, 'r') as input_file:
         for line in input_file:
-            clean = [int(n) for n in list(line.strip())]
-            data.append(clean)
+            clean_list = line_handler(line)
+            typed = [type_cast(n) for n in clean_list]
+            data.append(typed)
     return data
 
 
@@ -121,17 +113,14 @@ class TestThing(TestCase):
 
     def test_one_data(self):
         risk_score = total_risk_level(self.input_data)
-        # print(risk_score)
         self.assertion(570 == risk_score)
 
     def test_two_example(self):
         size = size_of_basin(0, 1, self.example_data)
         self.assertion(3 == size)
         result = product_of_biggest_basins(self.example_data)
-        # print(result)
         self.assertion(1134 == result)
 
     def test_two_data(self):
         size = product_of_biggest_basins(self.input_data)
-        print(size)
         self.assertion(899392 == size)
