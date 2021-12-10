@@ -11,12 +11,11 @@ class ParenStack:
 
     def __init__(self):
         self.stack = list()
-        self.reverse_pairs = {self.closes[i]: self.opens[i] for i in range(len(self.closes))}
-        self.forward_pairs = {v: k for k, v in self.reverse_pairs.items()}
+        self.forward_pairs = {self.opens[i]: self.closes[i] for i in range(len(self.opens))}
+        self.reverse_pairs = {v: k for k, v in self.forward_pairs.items()}
 
     def push(self, element):
-        is_close = element in self.closes
-        is_open = element in self.opens
+        is_close, is_open = element in self.closes, element in self.opens
         if not any([is_open, is_close]):
             raise ValueError(f'Element "{element}" is not a supported character')
         if is_close:
@@ -68,8 +67,7 @@ class ParenStack:
         completion = stack.autocomplete()
         score = 0
         for x in completion:
-            score = 5*score + scores[x]
-            # print(x, score)
+            score = 5 * score + scores[x]
         return score
 
 
@@ -87,13 +85,9 @@ def total_error_score(file_data):
 
 
 def middle_autocomplete_score(file_data):
-    scores = list()
-    for r in file_data:
-        current_score = ParenStack.autocomplete_score(r)
-        if 0 != current_score:
-            scores.append(current_score)
-    scores.sort()
-    middle_index = ceil(len(scores)/2)-1
+    scores = [ParenStack.autocomplete_score(r) for r in file_data]  # get scores
+    scores = [s for s in sorted(scores) if s > 0]  # filter out zeroes and sort
+    middle_index = ceil(len(scores) / 2) - 1
     return scores[middle_index]
 
 
