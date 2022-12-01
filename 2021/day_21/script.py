@@ -1,6 +1,7 @@
 """
 Day 21: Dirac Dice
 """
+import sys
 from unittest import TestCase
 
 
@@ -103,7 +104,7 @@ def dirac_game(game_data):
         next_game = game.copy()
         game.increment_position(player, d)
 
-        if game.get_score(player) >= 1000:
+        if game.get_score(player) >= 21:
             game.increment_score(player, 1)
         else:
             child_result = dirac_game(next_game)
@@ -114,6 +115,7 @@ def dirac_game(game_data):
 
 
 def play_dirac_game(player_data):
+    sys.setrecursionlimit(10_000)
     game = GameData(player_data)
     game = dirac_game(game)
     print(game)
