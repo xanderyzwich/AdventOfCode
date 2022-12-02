@@ -5,7 +5,7 @@ public class StringChecker {
         return toCheck == null || toCheck.length() == 0;
     }
 
-    public boolean notEmpty(String toCheck){
+    public static boolean notEmpty(String toCheck){
         return !isEmpty(toCheck);
     }
 }
