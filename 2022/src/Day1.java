@@ -1,4 +1,4 @@
-import util.StringChecker;
+import util.StringTools;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -13,7 +13,7 @@ public class Day1 extends Day {
 
         Integer calories =  0;
         for(String line: this.strings){
-            if (StringChecker.isEmpty(line)){
+            if (StringTools.isEmpty(line)){
                 calorieCounts.add(calories);
                 calories = 0;
             } else {

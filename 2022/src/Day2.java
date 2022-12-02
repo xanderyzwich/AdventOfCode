@@ -1,4 +1,4 @@
-import util.StringChecker;
+import util.StringTools;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,36 +17,26 @@ public class Day2 extends Day{
         put("Z", "Scissors");
     }};
 
-    List<RoundPt1> pt1RoundList;
-    List<RoundPt2> pt2RoundList;
+    List<? extends Round> roundList;
 
-    public Day2(Type type) {
+    public Day2(Type type, Integer part) {
         super(2, type);
-        this.pt1RoundList = this.strings.stream()
-                .filter(StringChecker::notEmpty)
-                .map(s->s.split(" "))
-                .map(list -> new RoundPt1(encoding1.get(list[0]), encoding2pt1.get(list[1])))
-                .toList();
-        this.pt2RoundList = this.strings.stream()
-                .filter(StringChecker::notEmpty)
-                .map(s->s.split(" "))
-                .map(list -> new RoundPt2(encoding1.get(list[0]), list[1]))
+        this.roundList = this.strings.stream()
+                .filter(StringTools::notEmpty)
+                .map(s -> s.split(" "))
+                .map(list -> part == 1
+                    ? new RoundPt1(encoding1.get(list[0]), encoding2pt1.get(list[1]))
+                    : new RoundPt2(encoding1.get(list[0]), list[1]))
                 .toList();
     }
 
-    public Integer part1() {
-        return this.pt1RoundList.stream()
-                .map(RoundPt1::roundScore)
+    public Integer takeScore() {
+        return this.roundList.stream()
+                .map(Round::roundScore)
                 .reduce(0, Integer::sum);
     }
 
-    public Integer part2() {
-        return this.pt2RoundList.stream()
-                .map(RoundPt2::roundScore)
-                .reduce(0, Integer::sum);
-    }
-
-    static class RoundPt1 {
+    abstract static class Round {
         protected String me;
         protected String them;
 
@@ -56,14 +46,9 @@ public class Day2 extends Day{
             put("Scissors", 3);
         }};
 
-        public  RoundPt1(){
+        Round(){
             this.me = "";
             this.them = "";
-        }
-
-        public RoundPt1(String them, String me){
-            this.me = me;
-            this.them = them;
         }
 
         private Integer outcomeScore(){
@@ -92,13 +77,17 @@ public class Day2 extends Day{
             return shape + outcome;
         }
 
-
     }
 
-    static class RoundPt2 extends RoundPt1{
+    static class RoundPt1 extends Round{
+        public RoundPt1(String them, String me){
+            this.me = me;
+            this.them = them;
+        }
+    }
 
+    static class RoundPt2 extends Round{
         public RoundPt2(String them, String outcome) {
-            String me = "broken";
             this.them = them;
             // lose
             if (outcome.equals("Y")) {
@@ -106,18 +95,11 @@ public class Day2 extends Day{
             } else {
                 boolean win = outcome.equals("Z");
                 switch (them) {
-                    case "Rock":
-                        this.me = win ? "Paper" : "Scissors";
-                        break;
-                    case "Paper":
-                        this.me = win ? "Scissors" : "Rock";
-                        break;
-                    case "Scissors":
-                        this.me = win ? "Rock" : "Paper";
-                        break;
+                    case "Rock" ->      this.me = win ? "Paper" : "Scissors";
+                    case "Paper" ->     this.me = win ? "Scissors" : "Rock";
+                    case "Scissors" ->  this.me = win ? "Rock" : "Paper";
                 }
             }
-            ;
         }
     }
 }
