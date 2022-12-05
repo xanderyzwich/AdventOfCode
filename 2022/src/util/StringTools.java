@@ -9,9 +9,13 @@ public class StringTools {
         return !isEmpty(toCheck);
     }
 
-    public Integer getAscii(String character){
+    public static Integer getAscii(String character){
         return character.length() != 1
                 ? 0
                 : (int) character.toCharArray()[0];
+    }
+
+    public static boolean stringContainsChar(String check, String oneChar){
+        return -1 == check.indexOf(oneChar);
     }
 }
