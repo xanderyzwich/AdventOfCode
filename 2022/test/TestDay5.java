@@ -5,13 +5,6 @@ import static org.junit.Assert.assertEquals;
 public class TestDay5 {
 
     @Test
-    public void dumbTest(){
-        String first = "    [D]";
-        System.out.println(first.contains("["));
-    }
-
-
-    @Test
     public void part1Example(){
         Day5 day5 = new Day5(Day.Type.EXAMPLE);
         String expected = "CMZ";
