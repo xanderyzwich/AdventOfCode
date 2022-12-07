@@ -1,9 +1,12 @@
 package day7;
 
+import lombok.Getter;
+
+@Getter
 public abstract class FileSystemNode {
 
     // Members
-    protected String name;
+    private final String name;
 
     // Constructors
     FileSystemNode(String name){

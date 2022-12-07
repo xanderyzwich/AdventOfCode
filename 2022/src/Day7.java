@@ -7,19 +7,12 @@ public class Day7 extends Day{
     public Day7(Type type){
         super(7, type);
         this.fileSystem = new FileSystem();
-        for(int i = 0; i<this.strings.size(); i++){
-            String line = this.strings.get(i);
+        for (String line : this.strings) {
             String[] parts = line.split(" ");
             switch (parts[0]) {
                 case "$" -> {
-                    switch (parts[1]) {
-                        case "cd":
-                            fileSystem.cd(parts[2]);
-                        case "ls":
-                            break;
-                        default:
-                            System.out.println("command unknown" + parts[1]);
-                    }
+                    if (parts[1].equals("cd")) // ls requires nothing to be done
+                        fileSystem.cd(parts[2]);
                 }
                 case "dir" -> fileSystem.addDirectory(parts[1]);
                 default -> fileSystem.addFile(parts[1], Integer.parseInt(parts[0]));
@@ -36,6 +29,7 @@ public class Day7 extends Day{
     }
 
     public Integer part2() {
-        return this.fileSystem.findDirectoryToDelete();
+        int neededSpace = 30000000;
+        return this.fileSystem.findDirectoryToDelete(neededSpace);
     }
 }

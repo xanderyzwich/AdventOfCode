@@ -1,12 +1,15 @@
 package day7;
 
+import lombok.Getter;
+
 import java.util.*;
 
+@Getter
 public class DirectoryNode extends FileSystemNode{
 
     // members
-    Map<String, FileSystemNode> children;
-    DirectoryNode parent;
+    private final Map<String, FileSystemNode> children;
+    private final DirectoryNode parent;
 
     // Constructors
     DirectoryNode(String name, DirectoryNode parent){
@@ -34,16 +37,15 @@ public class DirectoryNode extends FileSystemNode{
                 .filter(fileSystemNode -> fileSystemNode instanceof DirectoryNode)
                 .map(dn -> (DirectoryNode)dn)
                 .forEach(directoryNode -> directoryNodeList.addAll(directoryNode.getDirectoryList()));
-//        System.out.printf("Listing directory %s: %s%n", this.name, directoryNodeList);
         return directoryNodeList;
     }
 
     public String toString(){
-        return String.format("%s: %s", this.name, this.getSize());
+        return String.format("%s: %s", this.getName(), this.getSize());
     }
 
     // Mutators
     void addChild(FileSystemNode child){
-        children.put(child.name, child);
+        children.put(child.getName(), child);
     }
 }
