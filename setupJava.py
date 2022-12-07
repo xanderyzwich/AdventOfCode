@@ -4,6 +4,7 @@ Setup the new day's directory and base files
 """
 import datetime
 import os
+import re
 import shutil
 import sys
 from getopt import getopt, GetoptError
@@ -21,7 +22,7 @@ if __name__ == '__main__':
     # Default values
     date = datetime.datetime.now().date()
     year, day = str(date.year), date.day
-    lang = 'python'
+    lang = 'java'
 
     try:
         opts, args = getopt(argv, "h:y:d:l:", ["help =", "year =", "day =", "lang ="])
@@ -41,36 +42,42 @@ if __name__ == '__main__':
             print(f'year = {year}')
 
     CURR_DIR = os.path.dirname(os.path.realpath(__file__))
-#     current_contents = os.listdir()
-#     if year not in current_contents:
-#         os.mkdir(year)
+    PROJECT_ROOT = CURR_DIR
+    current_contents = os.listdir()
+    if year not in current_contents:
+        os.mkdir(year)
+        os.mkdir(f'year/data')
+        os.mkdir(f'year/src')
+        os.mkdir(f'year/test')
+    os.chdir(year)
 
     day_name = f'Day{day}'
-    dir_name = os.path.join(CURR_DIR, str(year), day_name)
-    contents = os.listdir(year)
-    if day_name not in contents:
-        os.mkdir(dir_name)
-
-    destination_contents = os.listdir(dir_name)
-    for name in current_contents:
-        file_name, file_extension = os.path.splitext(name)
-        if 'format' == file_name and language_extensions[lang] == file_extension:
-            destination_file_name = f'script{file_extension}'
-            # print(file_extension)
-            if destination_file_name not in destination_contents:
-                shutil.copy(name, os.path.join(dir_name, destination_file_name))
-
-    os.chdir(dir_name)
+    data_files = [f'{day_name}-example.txt', f'{day_name}-data.txt']
+    os.chdir(os.path.join(CURR_DIR, str(year), 'data'))
     contents = os.listdir()
-    data_files = ['example.txt', 'input.txt']
     for file in data_files:
         if file not in contents:
             with open(file, 'a') as thing:
                 pass
 
+    source_roots = ['src', 'test']
+    for d in source_roots:
+        os.chdir(f'../{d}')
+        destination_contents = os.listdir(os.getcwd())
+        for name in destination_contents:
+            file_name, file_extension = os.path.splitext(name)
+            if file_name.endswith('X') and language_extensions[lang] == file_extension:
+                destination_file_name = f'{day_name}{file_extension}' \
+                    if d == 'src' \
+                    else f'TestDay{day_name}{file_extension}'
+                if destination_file_name not in destination_contents:
+                    with open(name, 'r') as source_file, open(os.path.join(PROJECT_ROOT, year, d, destination_file_name), 'a') as output_file:
+                        for line in source_file:
+                            output_file.write(line.replace('ayX', f'ay{day}'))
+
     print(f'Good luck with day # {day}!')
     if day < 25:
-        print(f'Only {25-day} days left!')
+        print(f'Only {25 - day} days left!')
     elif 25 == day:
         print('LAST DAY! Merry Christmas!')
     else:
