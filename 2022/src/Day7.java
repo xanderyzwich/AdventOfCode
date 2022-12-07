@@ -36,6 +36,6 @@ public class Day7 extends Day{
     }
 
     public Integer part2() {
-        return null;
+        return this.fileSystem.findDirectoryToDelete();
     }
 }

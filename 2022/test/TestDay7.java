@@ -20,13 +20,13 @@ public class TestDay7 {
     @Test
     public void part2Example(){
         Day7 day7 = new Day7(Day.Type.EXAMPLE);
-        assertEquals((Integer)19, day7.part2());
+        assertEquals((Integer)24933642, day7.part2());
     }
 
     @Test
     public void part2Data(){
         Day7 day7 = new Day7(Day.Type.DATA);
-        Integer expected = 2383;
+        Integer expected = 6400111;
         Integer actual = day7.part2();
         assertEquals(expected, actual);
     }

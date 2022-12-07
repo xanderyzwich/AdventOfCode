@@ -1,16 +1,30 @@
 package day7;
 
+import java.util.Comparator;
 import java.util.List;
 
 public class FileSystem {
+
+    // Members
     private DirectoryNode root;
     private DirectoryNode current;
+    private Integer diskSize = 70000000;
+    private Integer neededSpace = 30000000;
 
+    // Constructors
     public FileSystem(){
         this.root = new DirectoryNode("/");
         this.current = this.root;
     }
 
+    // Accessors
+    public List<DirectoryNode> listDirectories(){
+        List<DirectoryNode> directoryList = this.root.getDirectoryList();
+//        System.out.println(directoryList);
+        return directoryList;
+    }
+
+    // Mutators
     public void cd(String destination){
         String where = destination.equals("..") ? "up to " +this.current.parent.name : destination;
 //        System.out.printf("Changing Directory %s%n", where);
@@ -33,10 +47,14 @@ public class FileSystem {
         this.current.addChild(new DirectoryNode(name, this.current));
     }
 
-    public List<DirectoryNode> listDirectories(){
-        List<DirectoryNode> directoryList = this.root.getDirectoryList();
-//        System.out.println(directoryList);
-        return directoryList;
+    public Integer findDirectoryToDelete(){
+        Integer currentFreeSpace = this.diskSize - this.root.getSize();
+        Integer memoryDeficit = this.neededSpace - currentFreeSpace;
+        return this.listDirectories().stream()
+                .sorted(Comparator.comparingInt(DirectoryNode::getSize))
+                .filter(directoryNode -> directoryNode.getSize()>=memoryDeficit)
+                .findFirst().get().getSize();
     }
+
 
 }
