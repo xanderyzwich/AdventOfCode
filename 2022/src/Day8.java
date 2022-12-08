@@ -1,5 +1,6 @@
+import util.ArrayTools;
+
 import java.util.Arrays;
-import java.util.stream.IntStream;
 
 public class Day8 extends Day{
     int[][] treeHeights;
@@ -33,34 +34,6 @@ public class Day8 extends Day{
             }
         }
         return visibleCount;
-    }
-
-    // Tooling to allow slicing a 1d array in a given direction from a 2d array
-    enum Direction {
-        UP, DOWN, LEFT, RIGHT
-    };
-
-    public int[] sliceDirection(int row, int col, Direction direction){
-        int currentHeight = this.treeHeights[row][col];
-        return switch (direction){
-            case UP -> IntStream.range(0, row).map(i -> row - 1 - i)
-                    .map(i -> this.treeHeights[i][col]).toArray();
-            case DOWN -> IntStream.range(row+1, this.treeHeights.length)
-                    .map(i -> this.treeHeights[i][col]).toArray();
-            case LEFT -> IntStream.range(0, col).map(i -> col - 1 - i)
-                    .map(i -> this.treeHeights[row][i]).toArray();
-            case RIGHT -> IntStream.range(col+1, this.treeHeights[row].length)
-                    .map(i -> this.treeHeights[row][i]).toArray();
-        };
-    }
-
-    public int[][] sliceAllDirection(int row, int col){
-        return new int[][]{
-                this.sliceDirection(row, col, Direction.UP),
-                this.sliceDirection(row, col, Direction.DOWN),
-                this.sliceDirection(row, col, Direction.LEFT),
-                this.sliceDirection(row, col, Direction.RIGHT),
-        };
     }
 
     /*
@@ -119,7 +92,7 @@ public class Day8 extends Day{
      */
     public boolean isVisibleWithSlice(int row, int col){
         int currentHeight = this.treeHeights[row][col];
-        int[][] slices = this.sliceAllDirection(row, col);
+        int[][] slices = ArrayTools.sliceAllDirections(this.treeHeights, row, col);
         int visibleDirections = 4;
 
         // iterate directions
@@ -195,7 +168,7 @@ public class Day8 extends Day{
      */
     public int getScenicScoreWithSlices(int row, int col){
         int currentHeight = this.treeHeights[row][col];
-        int[][] slices = this.sliceAllDirection(row, col);
+        int[][] slices = ArrayTools.sliceAllDirections(this.treeHeights, row, col);
         int[] directionScores = new int[slices.length];
         for(int i =0; i<slices.length; i++){
             int[] slice = slices[i];

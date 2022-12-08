@@ -1,4 +1,5 @@
 import org.junit.Test;
+import util.ArrayTools;
 
 import java.util.Arrays;
 import java.util.stream.IntStream;
@@ -64,15 +65,15 @@ public class TestDay8 {
     @Test
     public void sliceTest(){
         Day8 day8 = new Day8(Day.Type.EXAMPLE);
-        Day8.Direction[] directions = {
-                Day8.Direction.UP,
-                Day8.Direction.DOWN,
-                Day8.Direction.LEFT,
-                Day8.Direction.RIGHT
+        ArrayTools.Direction[] directions = {
+                ArrayTools.Direction.UP,
+                ArrayTools.Direction.DOWN,
+                ArrayTools.Direction.LEFT,
+                ArrayTools.Direction.RIGHT
         };
-        for (Day8.Direction d : directions){
+        for (ArrayTools.Direction d : directions){
             System.out.printf("%s: ", d);
-            int[] result = day8.sliceDirection(0, 1, d);
+            int[] result = ArrayTools.sliceDirection(day8.treeHeights, 0, 1, d);
             for(int i : result){
                 System.out.printf("%s, ", i);
             }
