@@ -38,7 +38,14 @@ public class FileSystem {
         this.current.addChild(new DirectoryNode(name, this.current));
     }
 
-    public Integer findDirectoryToDelete(Integer neededSpace){
+    public Integer findDirectoriesLargerThanSize(Integer maximumSize){
+        return this.listDirectories()
+                .stream().map(DirectoryNode::getSize)
+                .filter(size -> maximumSize>= size)
+                .reduce(0, Integer::sum);
+    }
+
+    public Integer findSmallestDirectoryLargerThanSize(Integer neededSpace){
         Integer currentFreeSpace = diskSize - this.root.getSize();
         Integer memoryDeficit = neededSpace - currentFreeSpace;
         return this.listDirectories().stream()

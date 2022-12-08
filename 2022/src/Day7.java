@@ -1,4 +1,3 @@
-import day7.DirectoryNode;
 import day7.FileSystem;
 
 public class Day7 extends Day{
@@ -22,14 +21,12 @@ public class Day7 extends Day{
 
 
     public Integer part1() {
-        return this.fileSystem.listDirectories()
-                .stream().map(DirectoryNode::getSize)
-                .filter(size -> 100000>= size)
-                .reduce(0, Integer::sum);
+        int maximumSize = 100000;
+        return this.fileSystem.findDirectoriesLargerThanSize(maximumSize);
     }
 
     public Integer part2() {
         int neededSpace = 30000000;
-        return this.fileSystem.findDirectoryToDelete(neededSpace);
+        return this.fileSystem.findSmallestDirectoryLargerThanSize(neededSpace);
     }
 }
