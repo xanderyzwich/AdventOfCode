@@ -69,7 +69,7 @@ if __name__ == '__main__':
             if file_name.endswith('X') and language_extensions[lang] == file_extension:
                 destination_file_name = f'{day_name}{file_extension}' \
                     if d == 'src' \
-                    else f'TestDay{day_name}{file_extension}'
+                    else f'Test{day_name}{file_extension}'
                 if destination_file_name not in destination_contents:
                     with open(name, 'r') as source_file, open(os.path.join(PROJECT_ROOT, year, d, destination_file_name), 'a') as output_file:
                         for line in source_file:
