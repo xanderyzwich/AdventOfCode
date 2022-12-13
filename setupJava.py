@@ -73,7 +73,8 @@ if __name__ == '__main__':
                 if destination_file_name not in destination_contents:
                     with open(name, 'r') as source_file, open(os.path.join(PROJECT_ROOT, year, d, destination_file_name), 'a') as output_file:
                         for line in source_file:
-                            output_file.write(line.replace('ayX', f'ay{day}'))
+                            clean = line.replace('ayX', f'ay{day}').replace('(0,', f'({day},')
+                            output_file.write(clean)
 
     print(f'Good luck with day # {day}!')
     if day < 25:
