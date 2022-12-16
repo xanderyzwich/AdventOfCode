@@ -18,7 +18,7 @@ public class Tuple <T, V> {
         if (getClass() != obj.getClass())
             return false;
         Tuple<T, V> other = (Tuple<T, V>) obj;
-        return this.first == other.first && this.second == other.second;
+        return this.first.equals(other.first) && this.second.equals(other.second);
     }
     @Override
     public String toString(){

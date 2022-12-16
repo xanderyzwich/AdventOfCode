@@ -1,5 +1,9 @@
+import lombok.AllArgsConstructor;
 import util.Tuple;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -12,29 +16,67 @@ public class Day12 extends Day{
             super(first, second);
         }
     }
+    @AllArgsConstructor
+    static class CoordinateCost{
+        int cost;
+        Coordinate location;
+        @Override
+        public boolean equals(Object obj){
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (obj.getClass() == Coordinate.class){
+                return this.location.equals(obj);
+            }
+            if (getClass() != obj.getClass())
+                return false;
+            CoordinateCost other = (CoordinateCost) obj;
+            return this.location.equals(other.location);
+        }
+        @Override
+        public int hashCode(){
+            final int offset = 10000;
+            return this.location.hashCode();
+        }
+        @Override
+        public String toString(){
+            return "Cost: %s, Location: %s%n".formatted(this.cost, this.location);
+        }
+    }
     char[][] altitudes;
-    int[][] distances;
+//    Queue<CoordinateCost> toCheck;
+//    List<CoordinateCost> visited;
+    List<Coordinate> lowestPoints;
     Coordinate start;
     Coordinate end;
     public Day12(Type type){
         super(12, type);
         altitudes = new char[this.strings.size()][this.strings.get(0).length()];
-        this.distances = new int[altitudes.length][altitudes[0].length];
+//        this.visited = new LinkedList<>();
+        this.lowestPoints = new LinkedList<>();
+
         for(int i=0; i<this.strings.size(); i++){
             String line = this.strings.get(i);
             for(int j=0; j<line.length(); j++){
                 char current = line.charAt(j);
+                Coordinate currentCoord = new Coordinate(i, j);
+                if(current == 'S' || current == 'a')
+                    lowestPoints.add(currentCoord);
                 if(current == 'S') {
-                    start = new Coordinate(i, j);
+                    start = currentCoord;
                     altitudes[i][j] = 'a';
                 } else  if(current == 'E') {
-                    end = new Coordinate(i, j);
+                    end = currentCoord;
                     altitudes[i][j] = 'z';
                 } else {
                     altitudes[i][j]=current;
                 }
             }
         }
+//        this.toCheck = new LinkedList<>(){{
+//            add(new CoordinateCost(0, start));
+//        }};
 //        System.out.printf("Start is %s%n", start);
 //        System.out.printf("End is %s%n", end);
     }
@@ -51,43 +93,31 @@ public class Day12 extends Day{
         return 1>= this.getAltitude(to)-this.getAltitude(from);
     }
     public boolean cannotClimb(Coordinate from, Coordinate to){ return !this.canClimb(from, to); }
-    public int getDistance(Coordinate location){
-        return distances[location.getFirst()][location.getSecond()];
-    }
-    public void setDistance(Coordinate location, int distance){
-        distances[location.getFirst()][location.getSecond()] = distance;
-    }
 
-    private Integer calculateDistance(List<Coordinate> visited, Coordinate currentLocation){
-        // Check if you are at the end
-        if(this.end.equals(currentLocation)){
-            return 0;
-        }
-
-        // check if another path has found this location with a shorter path
-        int previousDistance = this.getDistance(currentLocation);
-        if(previousDistance>0 && previousDistance <=visited.size())
-            return null;
-        else
-            this.setDistance(currentLocation, visited.size());
-
-//        System.out.printf("shortestPath called for %s, %s%n", currentLocation.getRow(), currentLocation.getCol());
-
-        // add self to visited list for neighbors to consider
-        List<Coordinate> newVisited = new LinkedList<>(visited){{
-            add(currentLocation);
+    private Integer findShortestDistance(Coordinate start){
+        Queue<CoordinateCost> toCheck = new LinkedList<>(){{
+            add(new CoordinateCost(0, start));
         }};
-
-        return getNeighborLocationStream(currentLocation).stream()
-                .filter(t->!visited.contains(t))
-                .filter(t-> canClimb(currentLocation, t))
-                .map(t-> this.calculateDistance(newVisited, t))
-                .filter(Objects::nonNull)
-                .map(i-> i+1)
-                .min(Integer::compareTo).orElse(null);
+        List<CoordinateCost> visited = new ArrayList<>();
+        while(!toCheck.isEmpty()){
+            CoordinateCost current = toCheck.poll();
+            visited.add(current);
+            if(this.end.equals(current.location)) {
+                System.out.printf("End Found: %s%n", current.cost);
+                return current.cost;
+            }
+            this.getNeighborLocations(current.location).stream()
+                    .map(neighborLocation -> new CoordinateCost(current.cost +1, neighborLocation))
+                    .filter(neighbor -> !visited.contains(neighbor))
+                    .filter(neighbor -> !toCheck.contains(neighbor))
+                    .filter(neighbor -> this.canClimb(current.location, neighbor.location))
+                    .forEach(toCheck::add);
+        }
+//        System.out.printf("End Location: %s%n", this.end);
+        return 0;
     }
 
-    public List<Coordinate> getNeighborLocationStream(Coordinate currentLocation) {
+    public List<Coordinate> getNeighborLocations(Coordinate currentLocation) {
         return Stream.of(
                 new Coordinate(currentLocation.getFirst(), currentLocation.getSecond() - 1),  // Up
                 new Coordinate(currentLocation.getFirst(), currentLocation.getSecond() + 1),  // Down
@@ -97,15 +127,14 @@ public class Day12 extends Day{
     }
 
     public Integer part1(){
-        Coordinate checkPoint = new Coordinate(1, 4);
-        Integer result = this.calculateDistance(new LinkedList<>(), start);
-//        Integer result = this.calculateDistance(new LinkedList<>(), end);
-//        Integer result = this.calculateDistance(new LinkedList<>(), checkPoint);
-//        System.out.println(Arrays.deepToString(this.distances));
+        Integer result = this.findShortestDistance(start);
         return result;
     }
 
     public Integer part2(){
-        return 0;
+        return this.lowestPoints.stream()
+                .map(this::findShortestDistance)
+                .filter(i -> i!=0)
+                .sorted().findFirst().get();
     }
 }
