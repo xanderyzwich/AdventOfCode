@@ -14,9 +14,11 @@ public abstract class Day {
             DATA,
     }
     String fileName;
+    Type type;
 
     public Day(Integer day, Type type){
         this.day = day;
+        this.type = type;
         this.fileName = type.name().toLowerCase();
         this.strings = FileTools.readLinesFromFile(day, this.fileName);
     }
