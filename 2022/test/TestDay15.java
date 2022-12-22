@@ -34,6 +34,9 @@ public class TestDay15 {
         Day15 day15 = new Day15(Day.Type.DATA);
         Integer expected = 0;
         Integer actual = day15.part2();
+        assertTrue(actual > 849139071);
+        assertTrue(actual > 853139071); // that + 4M // assuming off by one on col
+        assertTrue(actual > 853139072); // that + 1 // assuming also off by one on row
         assertEquals(expected, actual);
     }
 }

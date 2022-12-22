@@ -5,6 +5,8 @@ import util.Location;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Math.abs;
@@ -34,7 +36,7 @@ public class Day15 extends Day{
             edges.addAll(getLine(right, bottom));
             edges.addAll(getLine(bottom, left));
             edges.addAll(getLine(left, top));
-            System.out.printf("%s%n", this);
+//            System.out.printf("%s%n", this);
         }
 
         static List<Location> getLine(Location location1, Location location2){
@@ -79,6 +81,7 @@ public class Day15 extends Day{
 
     public Day15(Type type){
         super(15, type);
+        System.out.printf("Beginning setup Day: %s, type: %s%n", this.day, this.type);
         this.sensorList = this.strings.stream()
                 .map(Sensor::new)
                 .toList();
@@ -162,30 +165,32 @@ public class Day15 extends Day{
     public Integer part2(){
         System.out.printf("Beginning part 2%n");
         int max = this.type.equals(Type.EXAMPLE) ? 20 : 4000000;
-        List<Location> candidates = findOverlappingPoints();
-        System.out.printf("Candidates list has length %s%n", candidates.size());
-        if(candidates.size() == 1){
-            return getTuningFrequency(candidates.get(0));
-        }
-        System.out.printf("Candidates: %s%n", candidates);
-        System.out.printf("Constructing map corners");
-        List<Location> mapCorners = new ArrayList<>(){{
-            add(new Location(0, 0));
-            add(new Location(0, max));
-            add(new Location(max, 0));
-            add(new Location(max, max));
-        }};
-        for(Location corner : mapCorners){
-            boolean isCovered = false;
-            for(Sensor s : sensorList){
-                if(s.coversLocation(corner.getFirst(), corner.getSecond())) {
-                    isCovered = true;
-                    break;
-                }
-            } if(!isCovered){
-                return getTuningFrequency(corner);
-            }
-        }
-        return 0;
+
+//        Stream<Location> mapCorners = Stream.of(
+//            new Location(0, 0),
+//            new Location(0, max),
+//            new Location(max, 0),
+//            new Location(max, max)
+//        );
+
+        Stream<Location> candidates = this.sensorList.stream()
+                .map(Sensor::getEdges)
+                .flatMap(Collection::stream)
+                .filter(location -> 0<=location.getFirst() && location.getFirst()<=max)
+                .filter(location -> 0<=location.getSecond() && location.getSecond()<=max);
+
+        return candidates.parallel()
+                .filter(s->{
+                    for(Sensor sensor : sensorList){
+                        if(sensor.coversLocation(s.getFirst(), s.getSecond())){
+                            return false;
+                        }
+                    }
+                    return true;
+                })
+                .distinct()
+                .peek(System.out::println)
+                .map(Day15::getTuningFrequency)
+                .findAny().get();
     }
 }
